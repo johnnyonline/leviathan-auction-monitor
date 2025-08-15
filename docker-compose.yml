@@ -1,0 +1,17 @@
+services:
+  squid-monitor:
+    build: .
+    container_name: squid-monitor
+    volumes:
+      - .:/app
+      - /app/.venv
+    working_dir: /app
+    env_file: .env
+    command: >
+      bash -lc "
+        uv venv --clear &&
+        . .venv/bin/activate &&
+        uv sync &&
+        silverback run --network fraxtal:mainnet
+      "
+    restart: unless-stopped

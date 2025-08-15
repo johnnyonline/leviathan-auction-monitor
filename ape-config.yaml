@@ -1,0 +1,5 @@
+node:
+  fraxtal:
+    mainnet:
+      uri: "${FRAXTAL_RPC_URL}"
+      ws_uri: "${FRAXTAL_WS_URL}"
