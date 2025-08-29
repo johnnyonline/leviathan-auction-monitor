@@ -1,4 +1,6 @@
+import json
 from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, cast
 
 from ape.types import ContractLog
 from silverback import SilverbackBot, StateSnapshot
@@ -14,6 +16,8 @@ from bot.tg import ERROR_GROUP_CHAT_ID, notify_group_chat
 
 bot = SilverbackBot()
 
+STATE_FILE = "bot_state.json"
+
 
 # =============================================================================
 # Startup / Shutdown
@@ -27,16 +31,13 @@ async def bot_startup(startup_state: StateSnapshot) -> None:
         chat_id=ERROR_GROUP_CHAT_ID,
     )
 
-    # Set `bot.state` values
-    bot.state.auction_end_times = {}
-
     # # TEST on_auction_created
-    # logs = list(auction_house().AuctionCreated.range(24156903, 24156905))
+    # logs = list(auction_house().AuctionCreated.range(24783491, 24783493))
     # for log in logs:
     #     await on_auction_created(log)
 
     # # TEST on_auction_bid
-    # logs = list(auction_house().AuctionBid.range(23926364, 23926366))
+    # logs = list(auction_house().AuctionBid.range(24838644, 24838658))
     # for log in logs:
     #     await on_auction_bid(log)
 
@@ -85,7 +86,9 @@ async def on_auction_created(event: ContractLog) -> None:
     )
 
     # Track auction end times
-    bot.state.auction_end_times[auction_id] = int(event.end_time)
+    state = load_state()
+    state.setdefault("auction_end_times", {})[auction_id] = int(event.end_time)
+    save_state(state)
 
 
 @bot.on_(auction_house().AuctionBid)
@@ -122,8 +125,13 @@ async def on_auction_settled(event: ContractLog) -> None:
 async def notify_ending_soon(_: datetime) -> None:
     now_s = int(datetime.now(tz=timezone.utc).timestamp())
 
+    state = load_state()
+    auction_end_times = state.get("auction_end_times", {})
+    if not auction_end_times:
+        return
+
     to_remove = []
-    for auction_id, end_time in bot.state.auction_end_times.items():
+    for auction_id, end_time in auction_end_times.items():
         if 0 < (end_time - now_s) <= 2 * 60 * 60:  # 2 hours
             minutes_left = (end_time - now_s) // 60
             await notify_group_chat(f"⏰ <b>Auction {auction_id}</b> is ending soon (<b>~{minutes_left}m</b> left).")
@@ -131,4 +139,22 @@ async def notify_ending_soon(_: datetime) -> None:
 
     # remove auctions we just notified about
     for auction_id in to_remove:
-        bot.state.auction_end_times.pop(auction_id, None)
+        auction_end_times.pop(auction_id, None)
+
+
+# =============================================================================
+# Helpers
+# =============================================================================
+
+
+def load_state() -> Dict[str, Any]:
+    try:
+        with open(STATE_FILE, "r") as f:
+            return cast(Dict[str, Any], json.load(f))
+    except FileNotFoundError:
+        return {}
+
+
+def save_state(state: Dict[str, Any]) -> None:
+    with open(STATE_FILE, "w") as f:
+        json.dump(state, f)
