@@ -134,11 +134,16 @@ async def notify_ending_soon(_: datetime) -> None:
 
     state = load_state()
     auction_end_times = state.get("auction_end_times", {})
+    print("AUCTION END TIMES")
+    print(auction_end_times)
     if not auction_end_times:
         return
 
     to_remove = []
     for auction_id, end_time in auction_end_times.items():
+        print("AUCTION END TIMES ITEMS")
+        print(auction_id, end_time)
+
         if 0 < (end_time - now_s) <= 2 * 60 * 60:  # 2 hours
             minutes_left = (end_time - now_s) // 60
             await notify_group_chat(f"⏰ <b>Auction {auction_id}</b> is ending soon (<b>~{minutes_left}m</b> left).")
