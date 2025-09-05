@@ -68,6 +68,7 @@ async def bot_shutdown() -> None:
 
 @bot.on_(auction_house().AuctionCreated)
 async def on_auction_created(event: ContractLog) -> None:
+    print("AUCTION CREATED")
     auction_id = event.auction_id
     end_time = datetime.fromtimestamp(event.end_time, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
     minimum_total_bid = int(auction_house().minimum_total_bid(auction_id) / 1e18)
@@ -94,6 +95,7 @@ async def on_auction_created(event: ContractLog) -> None:
 
 @bot.on_(auction_house().AuctionBid)
 async def on_auction_bid(event: ContractLog) -> None:
+    print("AUCTION BID")
     await notify_group_chat(
         f"🦍 A new bid on of <b>{int(event.value / 1e18)} SQUID</b> "
         f"on <b>Auction {event.auction_id}</b> by <code>{ens_name(event.bidder)}</code>."
@@ -102,6 +104,7 @@ async def on_auction_bid(event: ContractLog) -> None:
 
 @bot.on_(auction_house().AuctionExtended)
 async def on_auction_extended(event: ContractLog) -> None:
+    print("AUCTION EXTENDED")
     auction_id = event.auction_id
     seconds_added = int(event.end_time) - int(datetime.now(tz=timezone.utc).timestamp())
     await notify_group_chat(
@@ -111,6 +114,7 @@ async def on_auction_extended(event: ContractLog) -> None:
 
 @bot.on_(auction_house().AuctionSettled)
 async def on_auction_settled(event: ContractLog) -> None:
+    print("AUCTION SETTLED")
     await notify_group_chat(
         f"🏆 <b>Auction {event.auction_id}</b> has been settled. "
         f"The winner is <code>{ens_name(event.winner)}</code> with a bid of <b>{int(event.amount / 1e18)} SQUID</b>."
@@ -124,6 +128,8 @@ async def on_auction_settled(event: ContractLog) -> None:
 
 @bot.cron("0 * * * *")  # Top of every hour
 async def notify_ending_soon(_: datetime) -> None:
+    await notify_group_chat(f"🟢 🐙 STILL ALIVE")
+
     now_s = int(datetime.now(tz=timezone.utc).timestamp())
 
     state = load_state()
