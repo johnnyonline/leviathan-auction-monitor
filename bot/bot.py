@@ -31,11 +31,10 @@ async def bot_startup(startup_state: StateSnapshot) -> None:
         chat_id=ERROR_GROUP_CHAT_ID,
     )
 
-    # # TEST on_auction_created
-    # # logs = list(auction_house().AuctionCreated.range(25017426, 25017428))
-    # logs = list(auction_house().AuctionCreated.range(25137180, 25137185))
-    # for log in logs:
-    #     await on_auction_created(log)
+    # TEST on_auction_created
+    logs = list(auction_house().AuctionCreated.range(25391559, 25391561))
+    for log in logs:
+        await on_auction_created(log)
 
     # # TEST on_auction_bid
     # logs = list(auction_house().AuctionBid.range(25134259, 25137180))
@@ -128,7 +127,7 @@ async def on_auction_settled(event: ContractLog) -> None:
 
 @bot.cron("0 * * * *")  # Top of every hour
 async def notify_ending_soon(_: datetime) -> None:
-    await notify_group_chat(f"🟢 🐙 STILL ALIVE")
+    # await notify_group_chat(f"🟢 🐙 STILL ALIVE")
 
     now_s = int(datetime.now(tz=timezone.utc).timestamp())
 
