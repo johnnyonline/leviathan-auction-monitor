@@ -31,10 +31,10 @@ async def bot_startup(startup_state: StateSnapshot) -> None:
         chat_id=ERROR_GROUP_CHAT_ID,
     )
 
-    # TEST on_auction_created
-    logs = list(auction_house().AuctionCreated.range(25391559, 25391561))
-    for log in logs:
-        await on_auction_created(log)
+    # # TEST on_auction_created
+    # logs = list(auction_house().AuctionCreated.range(25391559, 25391561))
+    # for log in logs:
+    #     await on_auction_created(log)
 
     # # TEST on_auction_bid
     # logs = list(auction_house().AuctionBid.range(25134259, 25137180))
