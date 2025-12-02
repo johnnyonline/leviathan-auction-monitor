@@ -12,6 +12,6 @@ services:
         uv venv --clear &&
         . .venv/bin/activate &&
         uv sync &&
-        silverback run --network fraxtal:mainnet
+        silverback run --network :mainnet
       "
     restart: unless-stopped

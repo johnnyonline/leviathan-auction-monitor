@@ -1,5 +1,5 @@
 node:
-  fraxtal:
+  ethereum:
     mainnet:
-      uri: "${FRAXTAL_RPC_URL}"
-      ws_uri: "${FRAXTAL_WS_URL}"
+      uri: "${ETH_RPC_URL}"
+      ws_uri: "${ETH_WS_URL}"

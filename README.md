@@ -37,7 +37,7 @@
 
 Run:
 ```shell
-silverback run --network fraxtal:mainnet
+silverback run --network :mainnet
 ```
 
 Run using docker compose:

@@ -32,12 +32,12 @@ async def bot_startup(startup_state: StateSnapshot) -> None:
     )
 
     # # TEST on_auction_created
-    # logs = list(auction_house().AuctionCreated.range(25391559, 25391561))
+    # logs = list(auction_house().AuctionCreated.range(23921880, 23921882))
     # for log in logs:
     #     await on_auction_created(log)
 
     # # TEST on_auction_bid
-    # logs = list(auction_house().AuctionBid.range(25134259, 25137180))
+    # logs = list(auction_house().AuctionBid.range(23921997, 23921999))
     # for log in logs:
     #     await on_auction_bid(log)
 
@@ -67,10 +67,9 @@ async def bot_shutdown() -> None:
 
 @bot.on_(auction_house().AuctionCreated)
 async def on_auction_created(event: ContractLog) -> None:
-    print("AUCTION CREATED")
     auction_id = event.auction_id
     end_time = datetime.fromtimestamp(event.end_time, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
-    minimum_total_bid = int(auction_house().minimum_total_bid(auction_id) / 1e18)
+    minimum_total_bid = int(auction_house().minimum_total_bid(auction_id)) / 1e18
 
     # Get some data from API
     data = auction_data(auction_id)
@@ -83,7 +82,7 @@ async def on_auction_created(event: ContractLog) -> None:
         f"{auction_description}\n\n"
         f"📌 <b>Auction ID:</b> {auction_id}\n"
         f"⏳ <b>End Time:</b> {end_time}\n"
-        f"💵 <b>Minimum Total Bid:</b> {minimum_total_bid} SQUID"
+        f"💵 <b>Minimum Total Bid:</b> {minimum_total_bid} WETH"
     )
 
     # Track auction end times
@@ -96,7 +95,7 @@ async def on_auction_created(event: ContractLog) -> None:
 async def on_auction_bid(event: ContractLog) -> None:
     print("AUCTION BID")
     await notify_group_chat(
-        f"🦍 A new bid on of <b>{int(event.value / 1e18)} SQUID</b> "
+        f"🦍 A new bid on of <b>{int(event.value) / 1e18} WETH</b> "
         f"on <b>Auction {event.auction_id}</b> by <code>{ens_name(event.bidder)}</code>."
     )
 
@@ -116,7 +115,7 @@ async def on_auction_settled(event: ContractLog) -> None:
     print("AUCTION SETTLED")
     await notify_group_chat(
         f"🏆 <b>Auction {event.auction_id}</b> has been settled. "
-        f"The winner is <code>{ens_name(event.winner)}</code> with a bid of <b>{int(event.amount / 1e18)} SQUID</b>."
+        f"The winner is <code>{ens_name(event.winner)}</code> with a bid of <b>{int(event.amount) / 1e18} WETH</b>."
     )
 
 
