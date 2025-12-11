@@ -18,6 +18,9 @@ def explorer_tx_url() -> str:
 
 def ens_name(address: str) -> str:
     try:
-        return str(networks.active_provider.web3.ens.name(address)) or address
+        ens_name = networks.active_provider.web3.ens.name(address)
+        if ens_name is None:
+            return str(address)
+        return str(ens_name)
     except Exception:
-        return address
+        return str(address)

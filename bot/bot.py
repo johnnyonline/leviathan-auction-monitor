@@ -32,12 +32,12 @@ async def bot_startup(startup_state: StateSnapshot) -> None:
     )
 
     # # TEST on_auction_created
-    # logs = list(auction_house().AuctionCreated.range(23921880, 23921882))
+    # logs = list(auction_house().AuctionCreated.range(23970604, 23970606))
     # for log in logs:
     #     await on_auction_created(log)
 
     # # TEST on_auction_bid
-    # logs = list(auction_house().AuctionBid.range(23921997, 23921999))
+    # logs = list(auction_house().AuctionBid.range(23988139, 23988141))
     # for log in logs:
     #     await on_auction_bid(log)
 
@@ -82,7 +82,7 @@ async def on_auction_created(event: ContractLog) -> None:
         f"{auction_description}\n\n"
         f"📌 <b>Auction ID:</b> {auction_id}\n"
         f"⏳ <b>End Time:</b> {end_time}\n"
-        f"💵 <b>Minimum Total Bid:</b> {minimum_total_bid} WETH"
+        f"💵 <b>Minimum Total Bid:</b> {minimum_total_bid:.4f} WETH"
     )
 
     # Track auction end times
@@ -93,9 +93,8 @@ async def on_auction_created(event: ContractLog) -> None:
 
 @bot.on_(auction_house().AuctionBid)
 async def on_auction_bid(event: ContractLog) -> None:
-    print("AUCTION BID")
     await notify_group_chat(
-        f"🦍 A new bid on of <b>{int(event.value) / 1e18} WETH</b> "
+        f"🦍 A new bid on of <b>{int(event.value) / 1e18:.4f} WETH</b> "
         f"on <b>Auction {event.auction_id}</b> by <code>{ens_name(event.bidder)}</code>."
     )
 
@@ -115,7 +114,7 @@ async def on_auction_settled(event: ContractLog) -> None:
     print("AUCTION SETTLED")
     await notify_group_chat(
         f"🏆 <b>Auction {event.auction_id}</b> has been settled. "
-        f"The winner is <code>{ens_name(event.winner)}</code> with a bid of <b>{int(event.amount) / 1e18} WETH</b>."
+        f"The winner is <code>{ens_name(event.winner)}</code> with a bid of <b>{int(event.amount) / 1e18:.4f} WETH</b>."
     )
 
 
